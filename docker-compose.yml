@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: flowfreeze
+      POSTGRES_USER: flowfreeze
+      POSTGRES_PASSWORD: flowfreeze
+    ports: ["5432:5432"]
+    volumes: ["flowfreeze_pg:/var/lib/postgresql/data"]
+  intelligence:
+    build: .
+    command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
+    environment:
+      DATABASE_URL: postgresql+psycopg://flowfreeze:flowfreeze@postgres:5432/flowfreeze
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_API_BASE: ${OPENAI_API_BASE:-}
+    ports: ["8000:8000"]
+    depends_on: [postgres]
+volumes:
+  flowfreeze_pg:

@@ -1,0 +1,8 @@
+{
+  "scenario_id": "INC-2407",
+  "flow": ["VICTIM-01", "W1", "W4", "AG-07", "CASH"],
+  "reported_amount": 15000,
+  "wallet_balance": 22000,
+  "expected_action": "wallet-level partial hold",
+  "human_approval_required": true
+}

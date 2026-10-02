@@ -1,0 +1,16 @@
+transaction_id,timestamp,sender_wallet,receiver_wallet,amount_bdt,transaction_type,status,hour,is_cashout,amount_log
+T001,2026-10-02 10:00:00,W001,W002,50000,transfer,completed,10,0,10.819798
+T002,2026-10-02 10:01:10,W002,W003,20000,transfer,completed,10,0,9.903538
+T003,2026-10-02 10:01:35,W002,W004,20000,transfer,completed,10,0,9.903538
+T004,2026-10-02 10:02:00,W002,W002,10000,internal_balance,completed,10,0,9.210440
+T005,2026-10-02 10:03:10,W003,CASHOUT,20000,cashout,completed,10,1,9.903538
+T006,2026-10-02 10:04:20,W004,W005,15000,transfer,completed,10,0,9.615872
+T007,2026-10-02 10:05:00,W004,CASHOUT,5000,cashout,completed,10,1,8.517393
+T008,2026-10-02 10:06:15,W005,W006,12000,transfer,completed,10,0,8.699681
+T009,2026-10-02 10:07:10,W008,W009,1500,transfer,completed,10,0,7.313887
+T010,2026-10-02 10:08:20,W009,W010,500,transfer,completed,10,0,6.216606
+T011,2026-10-02 10:09:05,W006,W007,8000,transfer,completed,10,0,8.987322
+T012,2026-10-02 10:09:40,W007,CASHOUT,7000,cashout,completed,10,1,8.853665
+T013,2026-10-02 10:10:20,W002,W008,500,transfer,completed,10,0,6.216606
+T014,2026-10-02 10:11:00,W005,W009,2000,transfer,completed,10,0,7.601402
+T015,2026-10-02 10:12:10,W009,CASHOUT,1000,cashout,completed,10,1,6.908755

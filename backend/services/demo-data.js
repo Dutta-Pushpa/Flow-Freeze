@@ -1,10 +1,6 @@
 const now = new Date('2026-10-02T10:44:12+06:00');
 const minutesAgo = (minutes) => new Date(now.getTime() - minutes * 60_000).toISOString();
 
-export const products = [
-  { id: 'demo-ledger', title: 'FlowFreeze field notebook', price: 650, description: 'A compact notebook for evidence-first investigations.', image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80' },
-  { id: 'demo-kit', title: 'Analyst desk kit', price: 1450, description: 'Cards, tabs and markers for incident-room reviews.', image: 'https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=800&q=80' }
-];
 
 export function createDemoState() {
   const transactions = [
@@ -35,7 +31,6 @@ export function createDemoState() {
     intervention: { id: 'INT-1001', wallet: 'W4', risk: 92, tainted: 15000, balance: 22000, cashout: 81, confidence: 81, collateral: 7000, scope: 'Wallet-level partial hold', rationale: 'Most evidence links ৳15,000 to the reported incident. A full freeze would expose an estimated ৳7,000 of legitimate value.', evidence: ['Direct receipt from W1', 'Cash-out probability above 80%', 'Taint amount is below current balance'], decision: 'pending' },
     evaluation: { baseline: { precision: 0.61, recall: 0.54, f1: 0.57, preserved: 108400, collateral: 46200 }, flowfreeze: { precision: 0.84, recall: 0.79, f1: 0.81, preserved: 193800, collateral: 12800 } },
     audit: [{ time: 'Today, 10:44', actor: 'Risk engine', action: 'Recommendation generated', entity: 'INT-1001', detail: 'Partial hold · W4 · ৳15,000', tone: 'indigo' }, { time: 'Today, 10:42', actor: 'Ayesha Rahman', action: 'Incident created', entity: 'INC-2407', detail: 'Risk score 92 · suspected fraud', tone: 'coral' }, { time: 'Today, 10:40', actor: 'FlowFreeze', action: 'Flow traced', entity: 'TX-77A21', detail: '2 hops · cash-out point found', tone: 'mint' }, { time: 'Today, 10:38', actor: 'System import', action: 'Transaction received', entity: 'TX-77A21', detail: 'Victim → W1 · ৳15,000', tone: 'slate' }],
-    storefront: { connected: Boolean(process.env.SHOPIFY_STORE_DOMAIN && process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN), products, cart: { lines: [], total: 0 } }
   };
 }
 

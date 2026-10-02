@@ -1,0 +1,24 @@
+{
+  "scenarios": [
+    {
+      "incident_id": "INC001",
+      "scenario_name": "Rapid Fund Diversion",
+      "description": "A reported fraudulent transfer is rapidly distributed across multiple downstream wallets before partial cash-out.",
+      "reported_amount_bdt": 50000,
+      "report_time": "2026-10-02 10:08:00",
+      "source_wallet": "W001",
+      "initial_recipient": "W002",
+      "fraud_type": "suspected_account_takeover",
+      "severity": "critical",
+      "expected_downstream_wallets": ["W002", "W003", "W004", "W005", "W006", "W007"],
+      "known_cashout_wallets": ["W003", "W004", "W007"],
+      "predicted_next_wallet": "W007",
+      "predicted_next_action": "cashout",
+      "suspicious_value_bdt": 43000,
+      "reachable_e_money_bdt": 26000,
+      "recommended_intervention": {"type": "partial_lien", "target_wallets": ["W002", "W005", "W006", "W007"], "amount_bdt": 26000, "requires_human_approval": true},
+      "baseline": {"strategy": "direct_recipient_only", "wallet": "W002", "estimated_containable_value_bdt": 10000},
+      "flowfreeze": {"strategy": "graph_trace_and_predict", "estimated_containable_value_bdt": 26000}
+    }
+  ]
+}

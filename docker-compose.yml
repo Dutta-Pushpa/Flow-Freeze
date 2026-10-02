@@ -8,7 +8,9 @@ services:
     ports: ["5432:5432"]
     volumes: ["flowfreeze_pg:/var/lib/postgresql/data"]
   intelligence:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.intelligence
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
     environment:
       DATABASE_URL: postgresql+psycopg://flowfreeze:flowfreeze@postgres:5432/flowfreeze

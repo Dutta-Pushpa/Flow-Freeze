@@ -13,6 +13,5 @@ RUN npm install --omit=dev --ignore-scripts
 COPY --from=build /app/dist ./dist
 COPY backend ./backend
 COPY frontend/public ./frontend/public
-COPY public ./public
 EXPOSE 3000
 CMD ["node", "backend/main.js"]

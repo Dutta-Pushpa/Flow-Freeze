@@ -25,10 +25,10 @@ Data preparation is separated from inference. Business policies are separate fro
 | Layer | Implementation |
 |---|---|
 | Data | Python, Pandas, deterministic synthetic MFS transactions/scenarios |
-| ML | scikit-learn classifier, XGBoost/LightGBM dependency surface, PyTorch-ready extension point |
-| GenAI | Optional OpenAI-compatible LLM with evidence retrieval and guardrails |
+| ML | scikit-learn gradient boosting + isotonic calibration, Isolation Forest, exact Shapley explanations, logistic-regression and fixed-rule baselines |
+| GenAI | TF-IDF evidence retrieval + structured narrative; optional LLM summary whose output is validated |
 | API | FastAPI model service plus Node.js/Express analyst-facing BFF |
-| Storage | PostgreSQL-ready SQLAlchemy/psycopg configuration; Webdev-managed MySQL audit adapter |
+| Storage | Hash-chained JSONL audit log (FastAPI) + MySQL audit adapter (Node demo); PostgreSQL is the production target |
 | Frontend | React/Vite analyst console with AI/ML observability page |
 | Monitoring | `/health`, model pipeline metadata, API audit trail, decision feedback endpoint |
 
@@ -69,19 +69,25 @@ python3 -m compileall -q data_generator ml graph taint intervention backend
 python3 -m pytest -q tests
 ```
 
-Current validation covers six Python tests plus the JavaScript production build. The live smoke path verifies the FastAPI health and grounded recommendation endpoints and the Node proxy.
+Validation: `python -m pytest -q tests` (data, model, taint, graph, security, API) plus the JavaScript production build. The live smoke path verifies the FastAPI health and grounded recommendation endpoints and the Node proxy.
 
 ## Demo story
 
 Start on Overview, open `INC-2407`, inspect `Victim → W1 → W4 → Agent 7 → Cash-out`, review Wallet W4, and open the recommendation. The recommended ৳15,000 partial hold follows the proportional taint estimate while leaving an estimated ৳7,000 of legitimate value outside the action. Use What-if simulator, then visit AI / ML observability to run the same scenario through the API and inspect the retrieved evidence and trace ID. Record a decision and review the Audit page.
 
-## Persisted ML pipeline
-
-The AI/ML path is artifact-backed rather than a deterministic demo constant:
+## Reproduce everything (≈1 minute)
 
 ```bash
-python -m data_generator.generate_transactions
-python -m ml.train_fraud_model
+pip install -r requirements.txt
+python -m data_generator.generate_transactions   # 20k tx, overlapping fraud/legit behaviour, label noise
+python -m ml.train_fraud_model                   # time-split training, baselines, calibration, fairness, impact
+python -m pytest -q tests
+export FLOWFREEZE_DEMO_MODE=true                 # local demo tokens only
+uvicorn backend.main:app --port 8000 &
+npm install && npm run build && npm start        # set FLOWFREEZE_API_TOKEN for the BFF
 ```
 
-This creates labeled behavioral scenarios, engineers transaction features, trains separate fraud and next-action `RandomForestClassifier` models, saves `models/fraud_model.joblib` and `models/next_move_model.joblib`, and writes held-out metrics to `data/processed/evaluation.json`. The API loads those artifacts and rejects inference when they are missing. The Node BFF accepts transaction-specific behavioral features through `/api/fraud-score` and `/api/predictions/:walletId`; it does not return a fake probability fallback.
+Every number on the dashboard comes from `data/processed/evaluation.json` and `impact.json`; nothing is hard-coded. API routes (except `/health`) need `Authorization: Bearer <token>` (401 without, 403 for a viewer on `/interventions/recommend`).
+
+## Product readiness
+Frequent, costly problem (mule cash-outs) · AI beats fixed rules (see Evaluation page) · clear next action (human-gated proportional hold) · measurable benefit (`impact.json`) · explainable (Shapley) · integrates via the documented API · validate next with governed upay data (time-based back-test, analyst A/B on alert quality, drift + fairness monitoring).

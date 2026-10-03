@@ -14,6 +14,7 @@ services:
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8000
     environment:
       DATABASE_URL: postgresql+psycopg://flowfreeze:flowfreeze@postgres:5432/flowfreeze
+      FLOWFREEZE_API_TOKENS: ${FLOWFREEZE_API_TOKENS:-demo-analyst-token:analyst}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_API_BASE: ${OPENAI_API_BASE:-}
     ports: ["8000:8000"]

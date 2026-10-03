@@ -17,14 +17,17 @@ function runPython(command, payload = {}) {
   return JSON.parse(result.stdout);
 }
 function referenceFeatures() {
-  return { amount: 15000, sender_velocity: 9, receiver_velocity: 4, cashout_flag: 1, new_relationship: 1, rapid_forwarding: 1, amount_vs_sender_avg: 5.7, hour: 2, account_age_days: 19, device_changed: 0, merchant_flag: 0, channel: 'app' };
+  return { amount: 15000, sender_velocity: 6, receiver_velocity: 4, sender_fan_out_24h: 5, receiver_fan_in_24h: 4, cashout_flag: 0, new_relationship: 1, rapid_forwarding: 1, amount_vs_sender_avg: 5.7, hour: 2, account_age_days: 19, receiver_age_days: 25, device_changed: 0, merchant_flag: 0, channel: 'app' };
 }
 function demoSnapshot() {
   const snapshot = cloneStore(demo); const features = referenceFeatures();
-  const prediction = runPython('prediction', features); const fraud = runPython('fraud', features);
+  const prediction = runPython('prediction', features); const fraud = runPython('fraud', features); const explanation = runPython('explain', features); const impact = runPython('impact');
   snapshot.incident.nextMove = prediction; snapshot.incident.risk = Math.round(fraud.risk_score); snapshot.incident.confidence = fraud.fraud_probability;
   snapshot.incidents[0].risk = snapshot.incident.risk; snapshot.incidents[0].confidence = fraud.fraud_probability;
-  snapshot.intervention.risk = snapshot.incident.risk; snapshot.intervention.cashout = Math.round(prediction.cashout * 100); snapshot.intervention.confidence = Math.round(Math.max(prediction.cashout, prediction.forward, prediction.other) * 100);
+  snapshot.intervention.risk = snapshot.incident.risk; snapshot.intervention.cashout = Math.round(prediction.cashout * 100); snapshot.intervention.confidence = Math.round(fraud.fraud_probability * 100); snapshot.incident.explanation = explanation; snapshot.incident.evidence = [...snapshot.incident.evidence, ...explanation.evidence];
+  snapshot.overview = impact.overview; snapshot.impact = impact;
+  const created = snapshot.incident.timeline.find((x) => x.label === 'Incident created'); if (created) created.detail = `Risk engine scored flow at ${snapshot.incident.risk}/100 (calibrated P(fraud) ${fraud.fraud_probability})`;
+  const auditRow = snapshot.audit.find((x) => x.entity === 'INC-2407'); if (auditRow) auditRow.detail = `Risk score ${snapshot.incident.risk} · suspected fraud`;
   snapshot.evaluation = runPython('evaluation'); return snapshot;
 }
 
@@ -33,8 +36,10 @@ app.get('/_app/health', (req, res) => res.json({ ok: true, service: 'flowfreeze'
 app.get('/api/health', (req, res) => res.json({ ok: true, database: databaseStatus() }));
 app.get('/manus-routes.json', (req, res) => res.sendFile(path.join(root, 'frontend', 'public', 'manus-routes.json')));
 app.get('/api/bootstrap', (req, res) => { try { res.json(demoSnapshot()); } catch (error) { res.status(503).json({ error: error.message }); } });
-app.get('/api/overview', (req, res) => res.json(demo.overview));
-app.get('/api/incidents', (req, res) => res.json(demo.incidents));
+app.get('/api/overview', (req, res) => { try { res.json(runPython('impact').overview); } catch (error) { res.status(503).json({ error: error.message }); } });
+app.get('/api/impact', (req, res) => { try { res.json(runPython('impact')); } catch (error) { res.status(503).json({ error: error.message }); } });
+app.post('/api/explain', (req, res) => { try { res.json(runPython('explain', req.body || {})); } catch (error) { res.status(503).json({ error: error.message }); } });
+app.get('/api/incidents', (req, res) => { try { res.json(demoSnapshot().incidents); } catch (error) { res.status(503).json({ error: error.message }); } });
 app.get('/api/incidents/:id', (req, res) => { const incident = req.params.id === demo.incident.id ? demo.incident : demo.incidents.find((item) => item.id === req.params.id); incident ? res.json(incident) : res.status(404).json({ error: 'Incident not found' }); });
 app.get('/api/transactions', (req, res) => res.json(demo.transactions));
 app.get('/api/graph', (req, res) => res.json(demo.graph));
@@ -59,7 +64,7 @@ app.get('/api/intelligence/health', async (req, res) => {
 });
 app.post('/api/intelligence/recommend', async (req, res) => {
   const base = process.env.PYTHON_API_URL || 'http://127.0.0.1:8000';
-  try { const response = await fetch(`${base}/api/v1/interventions/recommend`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(req.body) }); return res.status(response.status).json(await response.json()); }
+  try { const response = await fetch(`${base}/api/v1/interventions/recommend`, { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${process.env.FLOWFREEZE_API_TOKEN || ''}` }, body: JSON.stringify(req.body) }); return res.status(response.status).json(await response.json()); }
   catch (error) { return res.status(503).json({ error: 'Trained intelligence API unavailable; no fallback prediction is returned.', detail: error.message }); }
 });
 

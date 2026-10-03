@@ -1,0 +1,5 @@
+Changed: data_generator/{config,generate_transactions}.py, ml/{features,fraud_model,next_move_model,train_fraud_model,training,cli,explain}.py,
+taint/*, intervention/*, graph/features.py, backend/{main.py,main.js,security.py,models/incident.py,routes/*,services/explanation_service.py,services/fraud_service.py},
+frontend/src/App.jsx, requirements.txt, docker-compose.yml, .env.example, README.md, docs/*, tests/*, notebooks/*.
+New: ml/{baselines,anomaly}.py, backend/{guard,auth}.py, backend/services/knowledge_base.py, intervention/impact.py, taint/fifo (inside proportional.py), docs/synthetic_assumptions.md, FIX_GUIDE.md.
+Regenerated: data/*, models/*.joblib (models/anomaly_model.joblib is new).

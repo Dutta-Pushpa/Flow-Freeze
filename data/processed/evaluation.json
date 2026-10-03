@@ -3,117 +3,261 @@
     "dataset": "data/processed/generated_transactions_features.csv",
     "model_artifacts": [
       "models/fraud_model.joblib",
-      "models/next_move_model.joblib"
+      "models/next_move_model.joblib",
+      "models/anomaly_model.joblib"
     ],
     "seed": 42,
-    "train_rows": 375,
-    "test_rows": 125,
+    "split": "time-based: train first 60% / validation next 20% / test last 20%",
+    "train_rows": 12000,
+    "val_rows": 4000,
+    "test_rows": 4000,
+    "fraud_rate_train": 0.0544,
+    "fraud_rate_test": 0.0678,
+    "label_noise": "7% of true fraud unlabeled, 0.3% of legit mislabeled",
+    "operating_point": "expected-loss threshold chosen on validation for <= 2% false-positive rate",
     "feature_columns": [
       "amount_log",
       "sender_velocity",
       "receiver_velocity",
+      "sender_fan_out_24h",
+      "receiver_fan_in_24h",
       "cashout_flag",
       "new_relationship",
       "rapid_forwarding",
       "amount_vs_sender_avg",
       "hour",
       "account_age_days",
+      "receiver_age_days",
       "device_changed",
       "merchant_flag",
       "channel_code"
     ],
-    "scenario_count": 6,
+    "scenario_count": 7,
     "scenarios": [
-      "account_takeover",
-      "legitimate_merchant",
-      "legitimate_unusual",
-      "money_mule",
+      "ato",
+      "layering",
       "normal",
-      "scam_transaction"
+      "scam",
+      "unusual_fanout",
+      "unusual_new_device",
+      "unusual_oneoff"
     ]
   },
   "fraud": {
-    "model": "RandomForestClassifier",
+    "model": "HistGradientBoosting + isotonic calibration",
     "test": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "support": 125,
-      "roc_auc": 1.0
+      "precision": 0.6565,
+      "recall": 0.6347,
+      "f1": 0.6454,
+      "false_positives": 90,
+      "false_negatives": 99,
+      "support": 4000,
+      "positives": 271,
+      "fpr": 0.0241,
+      "roc_auc": 0.9477,
+      "pr_auc": 0.719,
+      "recall_at_1pct_fpr": 0.5683,
+      "recall_at_2pct_fpr": 0.6937,
+      "threshold": 774.666667,
+      "alert_rule": "P(fraud) x amount_bdt >= threshold (expected-loss rule)",
+      "brier": 0.0324,
+      "ece": 0.0182,
+      "chance_pr_auc": 0.0678
+    },
+    "baselines": {
+      "fixed_rules": {
+        "precision": 0.4679,
+        "recall": 0.1882,
+        "f1": 0.2684,
+        "false_positives": 58,
+        "false_negatives": 220,
+        "support": 4000,
+        "positives": 271,
+        "fpr": 0.0156,
+        "note": "binary rule alerts"
+      },
+      "logistic_regression": {
+        "precision": 0.603,
+        "recall": 0.4428,
+        "f1": 0.5106,
+        "false_positives": 79,
+        "false_negatives": 151,
+        "support": 4000,
+        "positives": 271,
+        "fpr": 0.0212,
+        "roc_auc": 0.9261,
+        "pr_auc": 0.5481,
+        "recall_at_1pct_fpr": 0.3616,
+        "recall_at_2pct_fpr": 0.4871,
+        "threshold": 1378.877937
+      },
+      "isolation_forest_unsupervised": {
+        "precision": 0.2647,
+        "recall": 0.1661,
+        "f1": 0.2041,
+        "false_positives": 125,
+        "false_negatives": 226,
+        "support": 4000,
+        "positives": 271,
+        "fpr": 0.0335,
+        "roc_auc": 0.7167,
+        "pr_auc": 0.1801,
+        "recall_at_1pct_fpr": 0.0664,
+        "recall_at_2pct_fpr": 0.1033,
+        "threshold": 0.980964
+      }
     }
   },
   "next_move": {
-    "model": "RandomForestClassifier",
-    "accuracy": 0.616,
+    "model": "HistGradientBoosting + sigmoid calibration",
+    "accuracy": 0.8712,
+    "macro_f1": 0.4117,
+    "majority_class_baseline_accuracy": 0.858,
+    "log_loss": 0.4119,
+    "prior_baseline_log_loss": 0.5083,
+    "cashout_pr_auc": 0.4143,
+    "cashout_roc_auc": 0.8174,
+    "cashout_prevalence": 0.0795,
+    "cashout_threshold_table": {
+      "0.3": {
+        "precision": 0.879,
+        "recall": 0.188,
+        "flagged": 58
+      },
+      "0.5": {
+        "precision": 1.0,
+        "recall": 0.133,
+        "flagged": 36
+      },
+      "0.7": {
+        "precision": 1.0,
+        "recall": 0.037,
+        "flagged": 10
+      }
+    },
     "classes": [
       "cashout",
       "forward",
       "other"
-    ]
+    ],
+    "test_rows": 3409
   },
   "slices": {
-    "new_accounts": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "support": 32
+    "new_accounts_<90d": {
+      "precision": 0.9024,
+      "recall": 0.8043,
+      "f1": 0.8506,
+      "false_positives": 8,
+      "false_negatives": 18,
+      "support": 209,
+      "positives": 92,
+      "fpr": 0.0684,
+      "negatives": 117
     },
-    "old_accounts": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "support": 93,
-      "roc_auc": 1.0
+    "old_accounts_>=90d": {
+      "precision": 0.5444,
+      "recall": 0.5475,
+      "f1": 0.546,
+      "false_positives": 82,
+      "false_negatives": 81,
+      "support": 3791,
+      "positives": 179,
+      "fpr": 0.0227,
+      "negatives": 3612
     },
-    "app": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "support": 66,
-      "roc_auc": 1.0
+    "channel_app": {
+      "precision": 0.6357,
+      "recall": 0.6721,
+      "f1": 0.6534,
+      "false_positives": 47,
+      "false_negatives": 40,
+      "support": 2419,
+      "positives": 122,
+      "fpr": 0.0205,
+      "negatives": 2297
     },
-    "ussd": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "support": 47,
-      "roc_auc": 1.0
+    "channel_ussd": {
+      "precision": 0.5143,
+      "recall": 0.3913,
+      "f1": 0.4444,
+      "false_positives": 17,
+      "false_negatives": 28,
+      "support": 1068,
+      "positives": 46,
+      "fpr": 0.0166,
+      "negatives": 1022
     },
-    "agent": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
-      "false_positives": 0,
-      "false_negatives": 0,
-      "support": 12,
-      "roc_auc": 1.0
+    "channel_agent": {
+      "precision": 0.7347,
+      "recall": 0.699,
+      "f1": 0.7164,
+      "false_positives": 26,
+      "false_negatives": 31,
+      "support": 513,
+      "positives": 103,
+      "fpr": 0.0634,
+      "negatives": 410
     },
-    "merchant": {
+    "to_merchant": {
       "precision": 0.0,
       "recall": 0.0,
       "f1": 0.0,
       "false_positives": 0,
-      "false_negatives": 0,
-      "support": 7
+      "false_negatives": 1,
+      "support": 967,
+      "positives": 1,
+      "fpr": 0.0,
+      "negatives": 966
     },
-    "personal": {
-      "precision": 1.0,
-      "recall": 1.0,
-      "f1": 1.0,
+    "to_non_merchant": {
+      "precision": 0.6565,
+      "recall": 0.637,
+      "f1": 0.6466,
+      "false_positives": 90,
+      "false_negatives": 98,
+      "support": 3033,
+      "positives": 270,
+      "fpr": 0.0326,
+      "negatives": 2763
+    },
+    "legit_look_alike(unusual)": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "false_positives": 41,
+      "false_negatives": 3,
+      "support": 814,
+      "positives": 3,
+      "fpr": 0.0506,
+      "negatives": 811
+    },
+    "legit_merchant_traffic": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
       "false_positives": 0,
-      "false_negatives": 0,
-      "support": 118,
-      "roc_auc": 1.0
+      "false_negatives": 1,
+      "support": 967,
+      "positives": 1,
+      "fpr": 0.0,
+      "negatives": 966
+    },
+    "legit_normal": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "false_positives": 31,
+      "false_negatives": 6,
+      "support": 1934,
+      "positives": 6,
+      "fpr": 0.0161,
+      "negatives": 1928
     }
+  },
+  "fairness": {
+    "max_fpr_ratio_across_groups": 4.12,
+    "flag": "REVIEW: false-positive rate differs >2x between groups",
+    "most_harmed_legit_group": "legit_look_alike(unusual)",
+    "note": "FPR = share of legitimate transactions that would be alerted."
   }
 }

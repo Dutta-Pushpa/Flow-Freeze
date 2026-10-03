@@ -13,3 +13,7 @@ FastAPI model service runs with `uvicorn backend.main:app --port 8000`.
 | `POST /api/v1/feedback` | analyst outcome and label feedback loop |
 
 Every recommendation carries `trace_id`, `confidence`, `collateral_estimate`, `requires_human_approval`, and structured evidence.
+
+## Authentication (v0.4)
+All `/api/v1/*` routes except `GET /health` require `Authorization: Bearer <token>`. Tokens and roles come from `FLOWFREEZE_API_TOKENS` (`token:role,...`). Missing/unknown token → **401**; role without permission (e.g. `viewer` on `/interventions/recommend`) → **403**. Demo tokens exist only when `FLOWFREEZE_DEMO_MODE=true`.
+New: `POST /api/v1/graph/analyze` (fan-in/out, pass-through, cycles, hubs). `/incidents/score` and `/interventions/recommend` now return `explanation` (exact Shapley drivers) and a `narrative` {what_happened, why_risky, what_next}; `confidence` is the calibrated fraud probability and `trace_id` is unique per request.

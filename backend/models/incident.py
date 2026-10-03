@@ -18,6 +18,13 @@ class IncidentRequest(BaseModel):
     amount_vs_sender_avg: float = Field(default=1.0, gt=0, le=1000)
     hour: int = Field(default=12, ge=0, le=23)
     account_age_days: int = Field(default=365, ge=0, le=10000)
+    sender_fan_out_24h: int = Field(default=1, ge=0, le=1000)
+    receiver_fan_in_24h: int = Field(default=1, ge=0, le=1000)
+    receiver_age_days: int = Field(default=365, ge=0, le=10000)
     device_changed: int = Field(default=0, ge=0, le=1)
     merchant_flag: int = Field(default=0, ge=0, le=1)
     evidence: list[str] = Field(default_factory=list, max_length=20)
+
+    def to_features(self) -> dict:
+        d = self.model_dump(exclude={"incident_id", "wallet_id", "wallet_balance", "evidence", "timestamp", "sender_wallet", "receiver_wallet", "reported_amount"})
+        d["amount_bdt"] = self.reported_amount; return d

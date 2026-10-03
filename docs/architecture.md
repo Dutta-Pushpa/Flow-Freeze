@@ -12,4 +12,4 @@ The Node.js API remains the analyst-facing BFF. The FastAPI service in `backend/
 
 ## Stack
 
-Python, Pandas, scikit-learn, XGBoost/LightGBM-compatible dependency surface, PyTorch-ready extension point, FastAPI, PostgreSQL/SQLAlchemy/psycopg, optional OpenAI-compatible LLM + lightweight evidence retrieval, Node.js/Express, React, and Webdev-managed observability through health endpoints and audit events.
+Python, Pandas, scikit-learn (gradient boosting + calibration, Isolation Forest), exact Shapley attribution, TF-IDF evidence retrieval, FastAPI with enforced bearer-token RBAC, Node.js/Express BFF, React console. Persistence: the Node BFF uses the managed MySQL audit adapter for the demo; the FastAPI service writes a hash-chained JSONL audit log. A production deployment would move both to PostgreSQL (see docs/api.md). No XGBoost/LightGBM/PyTorch is used.

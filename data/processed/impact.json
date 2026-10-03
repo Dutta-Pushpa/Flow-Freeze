@@ -1,0 +1,69 @@
+{
+  "assumptions": {
+    "analyst_delay_min": 5,
+    "hold_safety_margin": 0.1,
+    "minutes_per_alert": 6,
+    "note": "Simulation on synthetic data. Preserved = tainted value still in the wallet when the hold lands. Legit value held = money not tied to the fraud that a hold would freeze (TP collateral + false-alert holds, before release)."
+  },
+  "strategies": {
+    "no_action": {
+      "preserved_bdt": 0,
+      "preserved_pct": 0.0,
+      "legit_value_held_bdt": 0
+    },
+    "rules + whole-wallet hold": {
+      "episodes": 117,
+      "episodes_caught": 41,
+      "value_at_risk_bdt": 756590.0,
+      "preserved_bdt": 375426,
+      "preserved_pct": 49.6,
+      "alerts": 109,
+      "false_alerts": 52,
+      "analyst_minutes": 654,
+      "legit_value_held_bdt": 3358223
+    },
+    "FlowFreeze + whole-wallet hold": {
+      "episodes": 117,
+      "episodes_caught": 63,
+      "value_at_risk_bdt": 756590.0,
+      "preserved_bdt": 396594,
+      "preserved_pct": 52.4,
+      "alerts": 262,
+      "false_alerts": 72,
+      "analyst_minutes": 1572,
+      "legit_value_held_bdt": 9948393
+    },
+    "FlowFreeze + proportional hold": {
+      "episodes": 117,
+      "episodes_caught": 63,
+      "value_at_risk_bdt": 756590.0,
+      "preserved_bdt": 396594,
+      "preserved_pct": 52.4,
+      "alerts": 262,
+      "false_alerts": 72,
+      "analyst_minutes": 1572,
+      "legit_value_held_bdt": 471805
+    }
+  },
+  "preserved_change_vs_rules_pct": 5.6,
+  "collateral_reduction_vs_whole_wallet_pct": 95.3,
+  "delay_sensitivity_preserved_pct": {
+    "0": 72.7,
+    "2": 72.7,
+    "5": 52.4,
+    "10": 32.5,
+    "15": 27.4,
+    "30": 23.5
+  },
+  "overview": {
+    "activeIncidents": 63,
+    "suspiciousFlows": 262,
+    "valueAtRisk": 756590.0,
+    "valuePreserved": 396594,
+    "preservedChange": 5.6,
+    "falseAlerts": 72,
+    "episodes": 117,
+    "windowLabel": "3.1-day simulated test window",
+    "basis": "computed by intervention/impact.py on held-out synthetic data"
+  }
+}

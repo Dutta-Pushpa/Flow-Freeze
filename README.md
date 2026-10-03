@@ -53,7 +53,7 @@ The FastAPI service exposes `/health`, `/api/v1/incidents/score`, `/api/v1/trans
 
 ## AI/ML integration
 
-The `/intelligence` page displays the full pipeline, model stack, GenAI/RAG boundary, and a live reference inference. The Node routes `/api/intelligence/health` and `/api/intelligence/recommend` call the FastAPI service when available and return a safe deterministic fallback when it is not. The Python recommendation combines structured risk, proportional taint, next-move likelihood, and business policy before producing a human-gated action.
+The `/intelligence` page displays the full pipeline, model stack, GenAI/RAG boundary, and a live reference inference. The Node routes `/api/intelligence/health` and `/api/intelligence/recommend` call the FastAPI service when available and return an explicit 503 when trained intelligence is unavailable; no fake prediction is returned. The Python recommendation combines structured risk, proportional taint, next-move likelihood, and business policy before producing a human-gated action.
 
 Set `FLOWFREEZE_ENABLE_LLM=true` and provide server-side `OPENAI_API_KEY`/`OPENAI_API_BASE` only when optional LLM summarization is desired. The LLM layer is never the sole decision-maker.
 
@@ -74,3 +74,14 @@ Current validation covers six Python tests plus the JavaScript production build.
 ## Demo story
 
 Start on Overview, open `INC-2407`, inspect `Victim → W1 → W4 → Agent 7 → Cash-out`, review Wallet W4, and open the recommendation. The recommended ৳15,000 partial hold follows the proportional taint estimate while leaving an estimated ৳7,000 of legitimate value outside the action. Use What-if simulator, then visit AI / ML observability to run the same scenario through the API and inspect the retrieved evidence and trace ID. Record a decision and review the Audit page.
+
+## Persisted ML pipeline
+
+The AI/ML path is artifact-backed rather than a deterministic demo constant:
+
+```bash
+python -m data_generator.generate_transactions
+python -m ml.train_fraud_model
+```
+
+This creates labeled behavioral scenarios, engineers transaction features, trains separate fraud and next-action `RandomForestClassifier` models, saves `models/fraud_model.joblib` and `models/next_move_model.joblib`, and writes held-out metrics to `data/processed/evaluation.json`. The API loads those artifacts and rejects inference when they are missing. The Node BFF accepts transaction-specific behavioral features through `/api/fraud-score` and `/api/predictions/:walletId`; it does not return a fake probability fallback.

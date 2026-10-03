@@ -13,7 +13,7 @@ class Feedback(BaseModel):
     feedback_id: str | None = None
     notes: str = Field(default="", max_length=1000)
 @app.get("/health")
-def health(): return {"ok":True,"service":"flowfreeze-intelligence","pipeline":["synthetic/public data","feature/context layer","trained ML models","explanation/recommendation","operator action","measurable outcome","feedback loop"],"model_stack":["HistGradientBoostingClassifier","pandas","scikit-learn"],"decision_boundary":"business policy remains outside free-form LLM"}
+def health(): return {"ok":True,"service":"flowfreeze-intelligence","pipeline":["synthetic/public data","feature/context layer","trained ML models","explanation/recommendation","operator action","measurable outcome","feedback loop"],"model_stack":["RandomForestClassifier","pandas","scikit-learn"],"decision_boundary":"business policy remains outside free-form LLM"}
 @app.get("/api/v1/evaluation")
 def evaluation():
     from ml.training import evaluate_experiment

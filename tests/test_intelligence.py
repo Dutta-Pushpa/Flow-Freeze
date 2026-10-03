@@ -1,8 +1,8 @@
 def test_trained_models_return_predictions():
     from ml.training import predict_fraud, predict_next_move
-    features = {"amount": 15000, "sender_velocity": 5, "receiver_velocity": 4, "hop_count": 2, "cashout_flag": 1, "new_relationship": 1, "account_age_days": 19, "channel": "app", "merchant_flag": 0}
+    features = {"amount": 15000, "sender_velocity": 5, "receiver_velocity": 4, "rapid_forwarding": 1, "amount_vs_sender_avg": 4, "cashout_flag": 1, "new_relationship": 1, "account_age_days": 19, "channel": "app", "merchant_flag": 0}
     fraud = predict_fraud(features); move = predict_next_move(features)
-    assert fraud["model"] == "HistGradientBoostingClassifier" and fraud["risk_score"] > .5
+    assert fraud["model"] == "RandomForestClassifier" and fraud["risk_score"] > .5
     assert abs(sum(move[key] for key in ("forward", "cashout", "other")) - 1) < .01
 
 def test_graph_simulation_has_causal_stages():

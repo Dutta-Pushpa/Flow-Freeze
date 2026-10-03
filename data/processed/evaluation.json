@@ -1,1 +1,119 @@
-{"experiment": {"dataset": "make_experiment_dataset", "seed": 42, "train_rows": 84, "test_rows": 36, "scenario_count": 5, "scenarios": ["account_takeover", "money_mule", "scam_transaction", "legitimate_merchant", "legitimate_unusual"]}, "baseline": {"precision": 0.733333, "recall": 1.0, "f1": 0.846154, "false_positives": 8, "false_negatives": 0, "support": 36}, "flowfreeze": {"precision": 1.0, "recall": 1.0, "f1": 1.0, "false_positives": 0, "false_negatives": 0, "support": 36}, "slices": {"new_accounts": {"precision": 1.0, "recall": 1.0, "f1": 1.0, "false_positives": 0, "false_negatives": 0, "support": 14}, "old_accounts": {"precision": 1.0, "recall": 1.0, "f1": 1.0, "false_positives": 0, "false_negatives": 0, "support": 22}, "app": {"precision": 1.0, "recall": 1.0, "f1": 1.0, "false_positives": 0, "false_negatives": 0, "support": 21}, "ussd": {"precision": 1.0, "recall": 1.0, "f1": 1.0, "false_positives": 0, "false_negatives": 0, "support": 10}, "agent": {"precision": 0.0, "recall": 0.0, "f1": 0.0, "false_positives": 0, "false_negatives": 0, "support": 5}, "merchant": {"precision": 0.0, "recall": 0.0, "f1": 0.0, "false_positives": 0, "false_negatives": 0, "support": 7}, "personal": {"precision": 1.0, "recall": 1.0, "f1": 1.0, "false_positives": 0, "false_negatives": 0, "support": 29}}}
+{
+  "experiment": {
+    "dataset": "data/processed/generated_transactions_features.csv",
+    "model_artifacts": [
+      "models/fraud_model.joblib",
+      "models/next_move_model.joblib"
+    ],
+    "seed": 42,
+    "train_rows": 375,
+    "test_rows": 125,
+    "feature_columns": [
+      "amount_log",
+      "sender_velocity",
+      "receiver_velocity",
+      "cashout_flag",
+      "new_relationship",
+      "rapid_forwarding",
+      "amount_vs_sender_avg",
+      "hour",
+      "account_age_days",
+      "device_changed",
+      "merchant_flag",
+      "channel_code"
+    ],
+    "scenario_count": 6,
+    "scenarios": [
+      "account_takeover",
+      "legitimate_merchant",
+      "legitimate_unusual",
+      "money_mule",
+      "normal",
+      "scam_transaction"
+    ]
+  },
+  "fraud": {
+    "model": "RandomForestClassifier",
+    "test": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "support": 125,
+      "roc_auc": 1.0
+    }
+  },
+  "next_move": {
+    "model": "RandomForestClassifier",
+    "accuracy": 0.616,
+    "classes": [
+      "cashout",
+      "forward",
+      "other"
+    ]
+  },
+  "slices": {
+    "new_accounts": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "support": 32
+    },
+    "old_accounts": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "support": 93,
+      "roc_auc": 1.0
+    },
+    "app": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "support": 66,
+      "roc_auc": 1.0
+    },
+    "ussd": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "support": 47,
+      "roc_auc": 1.0
+    },
+    "agent": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "support": 12,
+      "roc_auc": 1.0
+    },
+    "merchant": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "support": 7
+    },
+    "personal": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "false_positives": 0,
+      "false_negatives": 0,
+      "support": 118,
+      "roc_auc": 1.0
+    }
+  }
+}

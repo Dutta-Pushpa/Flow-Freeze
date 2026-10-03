@@ -1,10 +1,9 @@
-"""Scikit-learn-compatible fraud classifier with optional XGBoost/LightGBM adapters."""
-import numpy as np
-from sklearn.ensemble import HistGradientBoostingClassifier
+"""Trained fraud classifier. Training data is deterministic synthetic behavior data."""
+from ml.training import feature_frame, trained_models
 class FraudModel:
-    def __init__(self): self.model=HistGradientBoostingClassifier(max_iter=80,random_state=42); self.fitted=False
-    def fit(self,X,y): self.model.fit(X,y); self.fitted=True; return self
-    def predict_proba(self,X):
-        if not self.fitted: return np.tile([.12,.88],(len(X),1))
-        return self.model.predict_proba(X)
-    def predict(self,X): return (self.predict_proba(X)[:,1]>=.5).astype(int)
+    def __init__(self): self.model=trained_models()[0]; self.fitted=True
+    def fit(self, X, y):
+        from sklearn.ensemble import HistGradientBoostingClassifier
+        self.model=HistGradientBoostingClassifier(max_iter=120, random_state=42).fit(X,y); return self
+    def predict_proba(self, X): return self.model.predict_proba(feature_frame(X))
+    def predict(self, X): return (self.predict_proba(X)[:,1]>=.5).astype(int)
